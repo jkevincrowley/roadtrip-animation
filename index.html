@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Animate a point along a route</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+<style>
+	body { margin: 0; padding: 0; }
+	#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<style>
+    .overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    .overlay button {
+        font: 600 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        background-color: #3386c0;
+        color: #fff;
+        display: inline-block;
+        margin: 0;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+    .overlay button:hover {
+        background-color: #4ea0da;
+    }
+</style>
+<script
+    src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"
+    charset="utf-8"
+></script>
+
+<div id="map"></div>
+<div class="overlay">
+    <button id="replay">Replay</button>
+</div>
+
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1Ijoic3ZjLW9rdGEtbWFwYm94LXN0YWZmLWFjY2VzcyIsImEiOiJja2N6ZWo3czAwM2s0MnJxdmhnOWFzNXl4In0.TG92L4pZFcK5uuKuSX3L7g';
+var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/streets-v11',
+  center: [-109.97588,44.49384],
+  zoom: 4.2,
+});
+
+// Rochester
+var origin = [-92.46242, 44.02455];
+
+// SEA
+var destination = [-122.33527, 47.62081];
+
+// A simple line from origin to destination.
+var route = {
+    'type': 'FeatureCollection',
+    'features': [{
+          'type': 'Feature',
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': [
+              [
+                -92.480438,
+                44.029667
+              ],
+              [
+                -92.479996,
+                44.029125
+              ],
+              [
+                -92.480537,
+                44.029018
+              ],
+              [
+                -92.480507,
+                44.028648
+              ],
+              [
+                -92.485313,
+                44.03035
+              ],
+              [
+                -92.489799,
+                44.030842
+              ],
+              [
+                -92.490158,
+                44.030663
+              ],
+              [
+                -92.488243,
+                44.026356
+              ],
+              [
+                -92.468117,
+                43.978104
+              ],
+              [
+                -92.464577,
+                43.975613
+              ],
+              [
+                -92.463242,
+                43.972698
+              ],
+              [
+                -92.487755,
+                43.889248
+              ],
+              [
+                -92.49395,
+                43.88345
+              ],
+              [
+                -92.753723,
+                43.674809
+              ],
+              [
+                -97.022583,
+                43.609009
+              ],
+              [
+                -100.190453,
+                43.912479
+              ],
+              [
+                -101.888237,
+                43.835827
+              ],
+              [
+                -102.233719,
+                43.986897
+              ],
+              [
+                -102.238754,
+                43.986958
+              ],
+              [
+                -102.239067,
+                43.987183
+              ],
+              [
+                -102.239014,
+                43.987911
+              ],
+              [
+                -102.241859,
+                43.988972
+              ],
+              [
+                -102.241859,
+                43.988365
+              ],
+              [
+                -102.239052,
+                43.987431
+              ],
+              [
+                -102.239052,
+                43.987408
+              ],
+              [
+                -102.246017,
+                43.987328
+              ],
+              [
+                -103.264053,
+                44.108841
+              ],
+              [
+                -103.633583,
+                44.468445
+              ],
+              [
+                -103.636414,
+                44.471874
+              ],
+              [
+                -103.859741,
+                44.648125
+              ],
+              [
+                -103.853577,
+                44.68121
+              ],
+              [
+                -105.408356,
+                45.443432
+              ],
+              [
+                -105.46225,
+                45.465847
+              ],
+              [
+                -105.676926,
+                45.80022
+              ],
+              [
+                -105.559608,
+                46.118214
+              ],
+              [
+                -105.822639,
+                46.395313
+              ],
+              [
+                -105.826309,
+                46.393116
+              ],
+              [
+                -106.687248,
+                46.257343
+              ],
+              [
+                -106.693871,
+                46.257362
+              ],
+              [
+                -107.600533,
+                46.637562
+              ],
+              [
+                -108.541939,
+                46.448833
+              ],
+              [
+                -108.803375,
+                47.040562
+              ],
+              [
+                -109.423935,
+                47.066879
+              ],
+              [
+                -109.428955,
+                47.069511
+              ],
+              [
+                -109.866699,
+                47.003464
+              ],
+              [
+                -111.339966,
+                47.486332
+              ],
+              [
+                -111.343498,
+                47.488491
+              ],
+              [
+                -111.530434,
+                47.55954
+              ],
+              [
+                -111.53376,
+                47.562855
+              ],
+              [
+                -111.69986,
+                47.541004
+              ],
+              [
+                -112.181633,
+                47.810265
+              ],
+              [
+                -112.182381,
+                47.811329
+              ],
+              [
+                -112.560921,
+                48.360752
+              ],
+              [
+                -112.962341,
+                48.529049
+              ],
+              [
+                -112.962936,
+                48.530182
+              ],
+              [
+                -113.024178,
+                48.556072
+              ],
+              [
+                -113.024551,
+                48.555855
+              ],
+              [
+                -113.543442,
+                48.233406
+              ],
+              [
+                -114.000343,
+                48.463394
+              ],
+              [
+                -114.009666,
+                48.463692
+              ],
+              [
+                -114.025368,
+                48.455441
+              ],
+              [
+                -114.082726,
+                48.4646
+              ],
+              [
+                -114.075172,
+                48.45076
+              ],
+              [
+                -114.071037,
+                48.426723
+              ],
+              [
+                -114.068192,
+                48.423412
+              ],
+              [
+                -114.069756,
+                48.422943
+              ],
+              [
+                -114.069138,
+                48.414539
+              ],
+              [
+                -114.084892,
+                48.416054
+              ],
+              [
+                -114.069756,
+                48.422943
+              ],
+              [
+                -114.068192,
+                48.423412
+              ],
+              [
+                -114.071037,
+                48.426723
+              ],
+              [
+                -114.075172,
+                48.45076
+              ],
+              [
+                -114.082726,
+                48.4646
+              ],
+              [
+                -114.116768,
+                48.474907
+              ],
+              [
+                -114.181107,
+                48.379498
+              ],
+              [
+                -114.181519,
+                48.37035
+              ],
+              [
+                -114.240898,
+                48.37077
+              ],
+              [
+                -114.335487,
+                48.378345
+              ],
+              [
+                -114.335831,
+                48.333103
+              ],
+              [
+                -114.330566,
+                48.240471
+              ],
+              [
+                -114.309776,
+                48.163284
+              ],
+              [
+                -114.309464,
+                48.16301
+              ],
+              [
+                -114.287781,
+                48.155251
+              ],
+              [
+                -114.174217,
+                47.921925
+              ],
+              [
+                -114.347137,
+                47.833549
+              ],
+              [
+                -114.596954,
+                47.829437
+              ],
+              [
+                -114.627098,
+                47.572041
+              ],
+              [
+                -114.871765,
+                47.452057
+              ],
+              [
+                -114.778748,
+                47.35437
+              ],
+              [
+                -115.099586,
+                47.297085
+              ],
+              [
+                -115.104614,
+                47.298695
+              ],
+              [
+                -116.855301,
+                47.708679
+              ],
+              [
+                -117.470833,
+                47.638191
+              ],
+              [
+                -118.37207,
+                47.113964
+              ],
+              [
+                -120.522102,
+                46.970528
+              ],
+              [
+                -121.419678,
+                47.428757
+              ],
+              [
+                -122.154259,
+                47.579838
+              ],
+              [
+                -122.32679,
+                47.592278
+              ],
+              [
+                -122.329964,
+                47.590294
+              ],
+              [
+                -122.334198,
+                47.59029
+              ],
+              [
+                -122.334175,
+                47.596481
+              ],
+              [
+                -122.335571,
+                47.596516
+              ],
+              [
+                -122.335861,
+                47.599213
+              ],
+              [
+                -122.336243,
+                47.599232
+              ],
+              [
+                -122.339149,
+                47.602139
+              ],
+              [
+                -122.339157,
+                47.602943
+              ],
+              [
+                -122.339111,
+                47.602962
+              ],
+              [
+                -122.339844,
+                47.602898
+              ],
+              [
+                -122.348473,
+                47.602528
+              ]
+           ]}
+           			}]
+           	};
+
+            // A single point that animates along the route.
+            // Coordinates are initially set to origin.
+            var point = {
+              'type': 'FeatureCollection',
+              'features': [{
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                  'type': 'Point',
+                  'coordinates': origin
+                }
+              }]
+            };
+
+            // Calculate the distance in kilometers between route start/end point.
+            var lineDistance = turf.lineDistance(route.features[0], 'kilometers');
+
+            //var arc = [];
+
+            // Number of steps to use in the arc and animation, more steps means
+            // a smoother arc and animation, but too many steps will result in a
+            // low frame rate
+            var steps = 100;
+
+            // Draw an arc between the `origin` & `destination` of the two points
+            //for (var i = 0; i < lineDistance; i += lineDistance / steps) {
+            //  var segment = turf.along(route.features[0], i, 'kilometers');
+            //  arc.push(segment.geometry.coordinates);
+            //}
+
+            // Update the route with calculated arc coordinates
+            //route.features[0].geometry.coordinates = arc;
+
+            // Used to increment the value of the point measurement against the route.
+            var counter = 0;
+
+            map.on('load', function() {
+              // Add a source and layer displaying a point which will be animated in a circle.
+              map.addSource('route', {
+                'type': 'geojson',
+                'data': route
+              });
+
+              map.addSource('point', {
+                'type': 'geojson',
+                'data': point
+              });
+
+              map.addLayer({
+                'id': 'route',
+                'source': 'route',
+                'type': 'line',
+                'paint': {
+                  'line-width': 2,
+                  'line-color': '#007cbf'
+                }
+              });
+
+              map.addLayer({
+                'id': 'point',
+                'source': 'point',
+                'type': 'symbol',
+                'layout': {
+                  'icon-image': 'car-15',
+                  //'icon-rotate': ['get', 'bearing'],
+                  'icon-rotation-alignment': 'map',
+                  'icon-allow-overlap': true,
+                  'icon-ignore-placement': true
+                }
+              });
+
+              function animate() {
+                // Update point geometry to a new position based on counter denoting
+                // the index to access the arc.
+                point.features[0].geometry.coordinates =
+                  route.features[0].geometry.coordinates[counter];
+
+                // Calculate the bearing to ensure the icon is rotated to match the route arc
+                // The bearing is calculate between the current point and the next point, except
+                // at the end of the arc use the previous point and the current point
+                point.features[0].properties.bearing = turf.bearing(
+                  turf.point(
+                    route.features[0].geometry.coordinates[
+                      counter >= steps ? counter - 1 : counter
+                    ]
+                  ),
+                  turf.point(
+                    route.features[0].geometry.coordinates[
+                      counter >= steps ? counter : counter + 1
+                    ]
+                  )
+                );
+
+                // Update the source with this new data.
+                map.getSource('point').setData(point);
+
+                // Request the next frame of animation so long the end has not been reached.
+                if (counter < steps) {
+                  requestAnimationFrame(animate);
+                }
+
+                counter = counter + 1;
+              }
+
+              document.getElementById('replay').addEventListener('click', function() {
+                // Set the coordinates of the original point back to origin
+                point.features[0].geometry.coordinates = origin;
+
+                // Update the source layer
+                map.getSource('point').setData(point);
+
+                // Reset the counter
+                counter = 0;
+
+                // Restart the animation.
+                animate(counter);
+              });
+
+              // Start the animation.
+              animate(counter);
+            });
+
+</script>
+
+</body>
+</html>
